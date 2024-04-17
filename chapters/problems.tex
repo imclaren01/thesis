@@ -1,0 +1,125 @@
+\chapter{New Problem Classes}
+To begin with, we examined a collection of well-studied $\nph{}$ problems. When considering how to deal with $k$-best problems, we decided to first focus on a simpler question, that in which $k = 2$, or the problem of finding the second-best solution. This allows for many of the same benefits as enumeration of $k$ solutions, but allows for simpler proofs and prevents the fact that $k$ itself can be exponential in its size (binary numbers grow at $2^n$, where $n$ is the length of the binary string). However, even the case of $k=2$ has some necessary and slightly odd requirements to be understood. For instance, how do we handle cases where there are two or more solutions to a problem with the same cost and there are no better solutions? This leads us to the idea of an inclusive and an exclusive second-best. For inclusive second-best problems, the second-best can (and in fact must, if possible) be of the same weight as the optimal solution. In the exclusive second-best space, the opposite is true and the second-best solution must be strictly worse than the best. 
+
+Second-best solutions also bring up another major question. That is, are we simply looking for the second-best with no additional context, or are we providing the optimal solution to make it easier for a solving machine to find the answer. This will also create two separate classes of problems.
+
+Although we have talked about second-best problems -- that is, where $k = 2$ -- specifically here, these questions and our distinctions are also valid for any $k$. Thus, we will define them in terms of $k$ rather than strictly second-best. However, most of the proofs in this thesis will focus exclusively on the second-best version.
+
+\section{Creating New Problem Classes}
+    We define several new classes for $k$ and second-best problems. In particular, we distinguish between exclusive $k$th-best and inclusive $k$th-best and between providing the original optimal solutions and not doing so.
+\subsection{{Ex-$k$th-Best}}
+\hfill\\
+We define the exclusive $k$th best class to be as follows: Given an existing combinatorial optimization problem with a heuristic function $C$ that is to be minimized -- remembering that any cost maximization problem can be mapped to a minimization problem -- in the optimal solution $O$, the corresponding {Ex-$k$th-Best} version of the problem would be to find a solution $S$ such that $C(S) > C(O)$ but there is no $S'$ such that both $C(S') > C(O)$ and $C(S') < C(S)$. In words, an {Ex-$k$th-Best} solver would be looking for a solution that is explicitly sub-optimal but still at least as good as all other sub-optimal feasible solutions.
+\subsection{{In-$kth$-Best}}
+\hfill\\
+Similarly, we define the inclusive $k$th best class: Given an existing combinatorial optimization problem with a cost function $C$ that is to be minimized in the optimal solution $O$, the corresponding {In-$k$th-Best} version of the problem would be find a solution $S \neq O$ such that $C(S) \geq C(O)$ and there is no $S' \neq O$ such that $C(S') < C(S)$. In words, an {In-$k$th-Best} solver would be looking for a solution that is either optimal or sub-optimal, but distinct from some optimal solution, and is still better than all other solutions. It is important to note that, if we aren't provided some sort of optimal solution, this problem doesn't have a definite meaning. For that reason, we will only discuss the inclusive form of the problem when we also provide the optimal solution.
+\subsection{Providing the optimal solution}
+\hfill\\
+When discussing second-best problems, we need to discuss whether we provide the optimal solution in our problem statement. That is, is a solving algorithm supposed to find the second-best solution with no additional information compared to a standard problem, or is it being provided the optimal solution as well. This distinction lets us add two additional classes, \exobk{} and \inobk. They are defined in the same way as their respective \exbk{} and \inbk{} versions, but the input to a solving algorithm for the new classes would include an exactly optimal solution.
+\section{New Complexity Classes}
+Using these new types of problems, we can also introduce a new set of computational complexity classes. We introduce \exbhk{}, \inbhk{}, \exobhk{}, and \inobhk{} as classes that mean a specific second-best problem is $NP$-Hard. For instance, if we say the Travelling Salesman Problem is \exobhk{}, it is equivalent to saying that \exobk{}-{TSP} is $NP$-Hard.
+\section{\inbk}
+We make a distinct note here that \inbk{} as a class is not actually well-defined. If we are not provided with an optimal solution, or a set of $k$ optimal solutions, then the concept of a ``distinct" solution that is of equal or worse cost does not really apply. As mentioned in the section defining the In-$kth$-Best class, we will simply ignore the version that does not provide the optimal solution in the input.
+% \section{Maximum Satisfiability}
+% We now get to see the reasoning behind the creation of the described problem classes above. The first problem we examine is that the problem of maximum satisfiability, or MAX-SAT. First, let us define the original optimization problem. MAX-SAT is the problem of taking an input in conjunctive normal form, where we have an equations of and-seperated clauses each of or-seperated boolean variables and outputting the assignment of variables that results in the most clauses being satisfied. That is, as many clauses as possible have at least one true variable.
+% \subsection{\exobt{}}
+% As a reminder, this is the version of the optimization problem in which we seek a feasible solution to the original solution that is explicitly worse than the optimal solution, but is at least as good as all other feasible solutions. In addition, the optimal solution is provided as input. The following is a simple proof that MAX-SAT is \exobht{}.\newline
+% On input $(\phi{}, S)$ where $\phi$ is a boolean formula in conjunctive normal form and $S$ is the optimal solution to MAX-SAT performed on $\phi$:
+
+% \section{Bin Packing}
+% We now get to see the reasoning behind the creation of the described problem classes above. The first problem we examine is that the problem of Bin Packing. This problem is a good example to start with, as it permits some particularly simple proofs while also showing the importance of the problem class distinctions. First, let us define the original optimization problem. Bin Packing is the problem of taking an input of a bin size $B$ and a set of items $i \in I$ each with size $s(i) \in \mathbb{Z}^+$ and finding a partition $P = I_1, ..., I_n$ of $I$ such that $\sum_{i \in I_j} s(i) \leq B$ for all $j$ and $\bigsqcup_{I_j \in P} I_j = I$. In other words, the each set in the partition represents the items filling up one bin. The goal is to minimize the number of sets needed to create this partition, or in other words, minimize the necessary number of bins.
+% \subsection{\exbt{}}
+% As a reminder, this is the version of the optimization problem in which we seek a feasible solution to the original solution that is explicitly worse than the optimal solution, but is at least as good as all other feasible solutions. In this form, we are not given the optimal solution itself to work with. We will show that Bin Packing is \exbht{} by mapping the original Bin Packing problem to it.
+
+% On input $(B, I, s: I\rightarrow \mathbb{Z}^+)$ where $B$ is the bin size, $I$ is the collection of items, and $s$ is the function mapping each item to a size:
+% \begin{enumerate}
+% \item 
+% \end{enumerate}
+
+% \subsection{\exobt{}}
+% As a reminder, this is the version of the optimization problem in which we seek a feasible solution to the original solution that is explicitly worse than the optimal solution, but is at least as good as all other feasible solutions. In addition, the optimal solution is provided as input. The following is a simple proof that Bin Packing is \exobt{{-Easy}}. \newline
+% On input $(B, I, s: I\rightarrow \mathbb{Z}^+, O)$ where $B$ is the bin size, $I$ is the collection of items, $s$ is the function mapping each item to a size, and $O = \{I_1,...,I_n\}$ is the solution to the optimal version of the Bin Packing problem provided in partition form:
+% \begin{enumerate}
+%     \item Construct a new partition $O' = \{I_1',...,I_n'\}$ that is a copy of $O$
+%     \item Pick any item $i$ from $I_1 \in O$.
+%     \item Remove $i$ from $I_1'$ and create a new $I_{n+1} = \{i\}$.
+%     \item Add $I_{n+1}$ to $O'$
+% \end{enumerate}
+% It is clear that $O'$ is a possible solution to the Bin Packing problem. In addition, it is $n+1$ elements long, as opposed to $O$, the optimal solution which is $n$ elements long. 
+
+% \section{Max Clique}
+
+% \section{Analysis of 2nd-Best Variations for the Maximum Clique Problem}
+
+% Let $G = (V, E)$ be an undirected graph, and let $\omega(G)$ denote the size of the maximum clique in $G$. We define the following variations of the 2nd-best problem for the Maximum Clique problem:
+
+% \begin{enumerate}
+%    \item {In-2nd-Opt-Best}: Given a maximum clique $C_\text{max}$ of size $\omega(G)$, find a clique $C'$ such that $|C'| < \omega(G)$ and $|C'|$ is maximum among all cliques smaller than $C_\text{max}$.
+%    \item {Ex-2nd-Opt-Best}: Given a maximum clique $C_\text{max}$ of size $\omega(G)$, find a clique $C'$ such that $|C'| < \omega(G)$ and $|C'|$ is maximum among all cliques smaller than $C_\text{max}$.
+%    \item {In-2nd-Best}: Find a clique $C'$ such that $|C'| = \omega(G)$ and $C' \neq C_\text{max}$.
+%    \item {Ex-2nd-Best}: Find a clique $C'$ such that $|C'| < \omega(G)$ and $|C'|$ is maximum among all cliques smaller than the unknown optimal solution.
+% \end{enumerate}
+
+% \subsection{Proof of $NP$-hardness}
+
+% We will prove the $NP$-hardness of all four variations by reducing the Maximum Clique problem to each of them.
+
+% \begin{equation*}
+%     The In-2nd-Opt-Best, Ex-2nd-Opt-Best, In-2nd-Best, and Ex-2nd-Best variations of the Maximum Clique problem are NP-hard.
+% \end{equation*}
+
+
+% \begin{proof}
+% The proof follows from a reduction from the Maximum Clique problem, which is known to be NP-complete.
+
+% {In-2nd-Opt-Best and Ex-2nd-Opt-Best:}
+% Suppose we have an algorithm $\mathcal{A}$ that can solve the In-2nd-Opt-Best (or Ex-2nd-Opt-Best) variation. We can then use $\mathcal{A}$ to solve the Maximum Clique problem as follows:
+
+% \begin{enumerate}
+%    \item Run $\mathcal{A}$ on the input graph $G$ to obtain a clique $C'$ that is the largest among all cliques smaller than the maximum clique.
+%    \item If $|C'| = \omega(G) - 1$, then return $C'$ as the maximum clique.
+%    \item Otherwise, repeatedly remove vertices from $G$ and run $\mathcal{A}$ on the resulting graph until a clique of size $\omega(G) - 1$ is found. This clique, together with any remaining vertex, forms the maximum clique of $G$.
+% \end{enumerate}
+
+% The correctness of this algorithm follows from the fact that if $\mathcal{A}$ returns a clique of size $\omega(G) - 1$, then it must be the largest clique smaller than the maximum clique, and adding any remaining vertex to it will yield the maximum clique. If $\mathcal{A}$ returns a smaller clique, we can iteratively remove vertices from $G$ until the largest clique smaller than the maximum clique is found.
+
+% Since the Maximum Clique problem is NP-complete, and we can solve it in polynomial time given an algorithm for the In-2nd-Opt-Best (or Ex-2nd-Opt-Best) variation, it follows that the In-2nd-Opt-Best and Ex-2nd-Opt-Best variations are NP-hard.
+
+% {In-2nd-Best:}
+% Suppose we have an algorithm $\mathcal{A}$ that can solve the In-2nd-Best variation. We can then use $\mathcal{A}$ to solve the Maximum Clique problem as follows:
+
+% \begin{enumerate}
+%    \item Run $\mathcal{A}$ on the input graph $G$ to obtain a clique $C'$ of size $\omega(G)$ that is different from the maximum clique.
+%    \item If such a clique $C'$ exists, then return $C'$ as the maximum clique.
+%    \item Otherwise, use a brute-force algorithm to find the maximum clique of $G$.
+% \end{enumerate}
+
+% The correctness of this algorithm follows from the fact that if $\mathcal{A}$ returns a clique of size $\omega(G)$ different from the maximum clique, then it must be the maximum clique. If no such clique exists, we resort to a brute-force algorithm to find the maximum clique.
+
+% Since the Maximum Clique problem is NP-complete, and we can solve it in polynomial time given an algorithm for the In-2nd-Best variation, it follows that the In-2nd-Best variation is NP-hard.
+
+% {Ex-2nd-Best:}
+% Suppose we have an algorithm $\mathcal{A}$ that can solve the Ex-2nd-Best variation. We can then use $\mathcal{A}$ to solve the Maximum Clique problem as follows:
+
+% \begin{enumerate}
+%    \item Run $\mathcal{A}$ on the input graph $G$ to obtain a clique $C'$ that is the largest among all cliques smaller than the unknown optimal solution.
+%    \item If $|C'| = \omega(G) - 1$, then return $C'$ as the maximum clique.
+%    \item Otherwise, repeatedly remove vertices from $G$ and run $\mathcal{A}$ on the resulting graph until a clique of size $\omega(G) - 1$ is found. This clique, together with any remaining vertex, forms the maximum clique of $G$.
+% \end{enumerate}
+
+% The correctness of this algorithm follows from the same argument as the In-2nd-Opt-Best and Ex-2nd-Opt-Best cases.
+
+% Since the Maximum Clique problem is NP-complete, and we can solve it in polynomial time given an algorithm for the Ex-2nd-Best variation, it follows that the Ex-2nd-Best variation is NP-hard.
+% \end{proof}
+
+% \subsection{Tightness of the Hardness Results}
+
+% The hardness results proved above are tight in the sense that the Maximum Clique problem is a special case of each of the 2nd-best variations. Specifically:
+
+% \begin{itemize}
+%    \item The In-2nd-Opt-Best and Ex-2nd-Opt-Best variations are equivalent to the Maximum Clique problem when the given maximum clique is the true optimal solution.
+%    \item The In-2nd-Best variation is equivalent to the Maximum Clique problem when there is no other clique of the same size as the maximum clique.
+%    \item The Ex-2nd-Best variation is equivalent to the Maximum Clique problem when the maximum clique is the only clique of its size.
+% \end{itemize}
+
+% Therefore, the NP-hardness results obtained above are tight, and there is no hope of finding polynomial-time algorithms for these variations unless P = NP.

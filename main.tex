@@ -1,0 +1,111 @@
+\documentclass[11pt, final]{westhesis}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{tikz}
+\usepackage[bookmarksdepth=3, colorlinks, allcolors=blue]{hyperref}
+\usepackage{fancyvrb}
+
+\usepackage{amsmath,amsfonts}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\setlist{nosep}
+
+\usepackage{url}
+\usepackage{natbib}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem*{theorem*}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{definition*}{Definition*}
+\newtheorem{lemma}{Lemma}
+\newtheorem*{lemma*}{Lemma}
+\title{On the Complexity of $k$-best and $2nd$-best Optimization Problems}
+\author{Iain McLaren}
+\date{April 2024}
+\submitdate{April 2024}
+\department{Mathematics and Computer Science}
+\advisor{Daniel Krizanc}
+\departmentname{Math and Computer Science}
+\makeindex
+
+\newcommand*{\exobt}{{Ex-2nd-Opt-Best}}
+	
+\newcommand*{\inobt}{{In-2nd-Opt-Best}}
+\newcommand*{\exbt}{{Ex-2nd-Best}}
+\newcommand*{\inbt}{{In-2nd-Best}}
+\newcommand*{\exobk}{{Ex-$k$th-Opt-Best}}
+\newcommand*{\inobk}{{In-$k$th-Opt-Best}}
+\newcommand*{\exbk}{{Ex-$k$th-Best}}
+\newcommand*{\inbk}{{In-$k$th-Best}}
+
+\newcommand*{\pp}{{P}}
+\newcommand*{\np}{{NP}}
+\newcommand*{\nph}[1]{{NP\text{-Hard{#1}}}}
+\newcommand*{\npc}{{NP\text{-Complete}}}
+
+\newcommand*{\tpp}{{\text{Turing}-P}}
+\newcommand*{\tnp}{{Turing-NP}}
+\newcommand*{\tnph}[1]{{Turing-NP-Hard{#1}}}
+\newcommand*{\tnpc}{{Turing-NP-Complete}}
+
+
+\newcommand*{\exobht}{{Ex-2nd-Opt-Best-Hard}}
+\newcommand*{\inobht}{{In-2nd-Opt-Best-Hard}}
+\newcommand*{\exbht}{{Ex-2nd-Best-Hard}}
+\newcommand*{\inbht}{{In-2nd-Best-Hard}}
+
+\newcommand*{\exobhk}{{Ex-$k$th-Opt-Best-Hard}}
+\newcommand*{\inobhk}{{In-$k$th-Opt-Best-Hard}}
+\newcommand*{\exbhk}{{Ex-$k$th-Best-Hard}}
+\newcommand*{\inbhk}{{In-$k$th-Best-Hard}}
+
+\newcommand*{\exob}{\exobt}
+\newcommand*{\inob}{\inobt}
+\newcommand*{\exb}{\exbt}
+\newcommand*{\inb}{\inbt}
+\newcommand*{\exobh}{\exobht}
+\newcommand*{\inobh}{\inobht}
+\newcommand*{\exbh}{\exbht}
+\newcommand*{\inbh}{\inbht}
+
+
+\begin{document}
+
+\include{chapters/abstract}
+\include{chapters/ack}
+
+
+
+\frontmatter
+\maketitle
+\makededication
+\makeack
+\makeabstract
+\tableofcontents
+
+\mainmatter
+
+\include{chapters/introduction}
+\include{chapters/relatedwork}
+\include{chapters/problems}
+\include{chapters/tsp}
+\include{chapters/hardnessproofs}
+\include{chapters/futurework}
+\include{chapters/conclusion}
+
+\bibliographystyle{abbrv}
+\bibliography{chapters/refs.bib}
+
+
+
+\printindex
+
+
+\appendix
+
+
+\backmatter
+
+
+
+
+\end{document}

@@ -1,0 +1,598 @@
+\chapter{Examining Other NP-Hard Problems}
+In this section, we present our proofs for the hardness of various combinatorial optimization problems in the context of finding the second-best solution.
+
+\section{Bin Packing}
+\begin{definition}[Bin Packing]
+Given a bin capacity $B$, and a set of items $I$ with sizes $s(i) \in (0, B]$ for each $i \in I$, find a partition of $I$ into the minimum number of subsets (bins) such that the total size of items in each subset does not exceed $B$.
+\end{definition}
+While we have defined the bin packing problem above as having as output a partition of $I$, most definitions of the problem will actually simply require a solution in the form of an integer representing the minimum number of bins necessary to hold all of the items. This leads to very different results for our second-best problems, so we include both versions.
+\subsection{Output is Integer $K$}
+\begin{definition}[\exob{}-Bin-Packing-K]
+Given an instance of the Bin Packing problem and the optimal number of bins $K$, find a packing that uses $K' > K$ bins, such that no packing with $K''$ exists such that $ K < K'' < K'$.
+\end{definition}
+
+\begin{theorem}
+\exob{}-Bin-Packing-K is in $\pp{}$.
+\end{theorem}
+\begin{proof}
+To find the second-best solution for \exob{}-Bin-Packing-K, we can simply return $K+1$, where $K$ is the optimal number of bins provided as input. This can be done in constant time, making the problem easy.
+\end{proof}
+
+\begin{definition}[\exb{}-Bin-Packing-K]
+Given an instance of the Bin Packing problem, find a packing that uses $K'$ bins, such that $K' > K$, where $K$ is the optimal number of bins, and no packing with $K < K'' < K'$ bins exists.
+\end{definition}
+
+\begin{theorem}
+\exb{}-Bin-Packing-K is $\nph{}$.
+\end{theorem}
+\begin{proof}
+We can reduce the original Bin Packing problem to \exb{}-Bin-Packing-K. Given an instance of Bin Packing, we can solve \exb{}-Bin-Packing-K and return the result minus one as the solution to the original problem. Since Bin Packing is NP-Hard, and thus calculation can be done in constant time, \exb{}-Bin-Packing-K is also $\nph{}$.
+\end{proof}
+
+\begin{definition}[\inob{}-Bin-Packing-K]
+Given an instance of the Bin Packing problem, find a packing that uses $K'$ bins, such that $K' \geq K$, where $K$ is the optimal number of bins, and no packing with $K \geq K'' < K'$ bins exists.
+\end{definition}
+
+\begin{theorem}
+\inob{}-Bin-Packing-K is undefined.
+\end{theorem}
+As is sometimes the case for the inclusive variety of 2nd-Best problems, this problem does not permit a clear definition of an inclusive second-best solution, as the solution is just an integer, not an object that can have a cost attached to it but is itself distinct from said cost. Thus, we can consider \inob{}{-Bin-Packing-K} either equivalent to the \exob{} variety, or entirely undefined. In general, when this occurs, we will call the problem undefined rather than attempting to force it into a strange definition. \newline
+
+\subsection{Output is Partition $P$}
+\begin{definition}[\exob{}-Bin-Packing-P]
+Given an instance of the Bin Packing problem and an optimal partition $P$ of items into bins, find a partition $P'$ that uses $|P'| > |P|$ bins, such that no partition with $|P| < |P''| < |P'|$ bins exists.
+\end{definition}
+
+\begin{theorem}
+\exob{}-Bin-Packing-P is in $\pp{}$.
+\end{theorem}
+\begin{proof}
+To find the second-best solution for \exob{}-Bin-Packing-P, we can take the optimal partition $P$ provided as input and move one item from any bin to a new bin. This new partition is a valid second-best solution and can be found in polynomial time.
+\end{proof}
+
+\begin{definition}[\inob{}-Bin-Packing-P]
+Given an instance of the Bin Packing problem and an optimal partition $P$ of items into bins, find a partition $P' \neq P$ that uses $|P'| \geq |P|$ bins, such that no partition $P'' \neq P$ with $|P| \leq |P''| < |P'|$ bins exists.
+\end{definition}
+\begin{theorem}
+\inob{}{-Bin-Packing-P} is $\nph{}$.
+\end{theorem}
+\begin{proof} 
+We introduce the Partition Problem, a known $\npc{}$ problem.
+\begin{definition}[Partition]
+    Given a multiset $S$ of positive integers, find two disjoint subsets $S_1$ and $S_2$ such that $S = S_1 \cup S_2$ and $sum(S_1) = sum(S_2)$.
+\end{definition}
+We will reduce the Partition problem to \inob{}-Bin-Packing-P.
+
+Given an instance of the Partition problem with a multiset $S = \{a_1, a_2, \ldots, a_n\}$, we construct an instance of \inob{}-Bin-Packing-P as follows:
+\begin{enumerate}
+    \item Create a set of items $I = \{x_1, x_2, ..., x_n, y_1, y_2\}$, where $s(x_i) = a_i$ for $1 \leq i \leq n$, and $s(y_1) =s(y_2) = \frac{1}{2} \sum_{i=1}^n a_i$.
+    \item Set the bin capacity to $B = \sum_{i=1}^n a_i$.
+    \item Set the optimal partition $P = \{\{y_1, y_2\}, I - \{y_1, y_2\}\}$. 
+\end{enumerate}
+First, note that every step of this construction is easily completed in polynomial time on the size of the input for the Partition problem.
+Now, we argue that the constructed instance of \inob{}-Bin-Packing-P has a second-best partition $P'$ with $|P'| = |P|$ if and only if the original Partition instance has a solution. 
+
+$(\Rightarrow)$ Suppose the constructed \inob{}-Bin-Packing-P instance has a second-best partition $P'$ with $|P'| = |P|$. Since $P'$ must be different from $P$ and $|P'| = 2$, it must partition the items in $I - \{y_1, y_2\}$ into two bins. Thereore, we can say $P' = \{S_1 \cup \{y_1\}, S_2 \cup \{y_2\}\}$ (we assign $y_1$ and $y_2$ without loss of generality, because clearly any partition in which they are in the same set will be exactly $P$). As $P'$ is a valid solution to the Bin Packing problem, the sum of item sizes in each bin must not exceed the bin capacity $B$. However, since the total sum of all items in $I$ is $2B=2\sum_{i=1}^{n}a_i=$, this can only be possible if each side has sum $B=\sum_{i=1}^{n}a_i$. As we noted, $y_1$ and $y_2$ are in different sets in the partition, and each have sizes of $\frac{B}{2}$. Thus, $S_1$ and $S_2$ must each sum to $\frac{B}{2} = \frac{1}{2}\sum_{i=1}^{n}a_i$ and thus form a solution to the original Partition instance.
+
+$(\Leftarrow)$ Suppose the original Partition instance has a solution, i.e., there exist subsets $S_1$ and $S_2$ such that $S_1 \cup S_2 = S$ and $\sum_{a_i \in S_1} a_i = \sum_{a_i \in S_2} a_i = \frac{1}{2} \sum_{i=1}^n a_i$. We can construct a second-best partition $P'$ for the \inob{}-Bin-Packing-P instance as follows: $P' = \{\{x_i : a_i \in S_1\} \cup \{y_1\}, \{x_i : a_i \in S_2\}\cup\{y_2\}\}$. By construction, $P'$ is a valid partition with $|P'| = |P|$ and $P' \neq P$.
+
+Since the Partition problem is $\nph{}$ and we have shown a polynomial-time reduction from Partition to \inob{}-Bin-Packing-P, we can conclude that \inob{}-Bin-Packing-P is also $\nph{}$.
+\end{proof}
+
+\begin{definition}[\exb{}-Bin-Packing-P]
+Given an instance of the Bin Packing problem, find a partition $P'$ that uses $|P'|$ bins, such that $|P'| > |P|$, where $P$ is an optimal partition, and no partition $P''$ with $|P| < |P''| < |P'|$ bins exists.
+\end{definition}
+\begin{theorem}
+\exb{}-Bin-Packing-P is $\nph{}$.
+\end{theorem}
+\begin{proof}
+The proof that \exb{}-Bin-Packing-P is NP-hard follows essentially the same process as our proof that \inob{}-Bin-Packing-P is $\nph{}$. The only difference we would need to include would be that \exb{}-Bin-Packing would not be provided with the optimal solution and would return a partition of size three if the partition problem has a solution. This is because that implies by the definition of the exclusive version that the actual best solution has to be better than three, meaning there is a solution that includes two or less bins. From the same logic as above, this directly implies the original partition problem has a solution. Thus, \exb{}-Bin-Packing-P is $\nph{}$.
+
+
+\end{proof}
+
+
+
+\section{Maximum Clique}
+
+\begin{definition}[Maximum Clique]
+Given a graph $G = (V, E)$, find a maximum-size subset $C \subseteq V$ such that for every pair of vertices $u, v \in C$, $(u, v) \in E$. That is, $C$ is the set of vertices in the largest completely connected subgraph of $G$. 
+\end{definition}
+Similarly to Bin Packing, there are two possible formulations of the Maximum Clique second best problems. In this case, we can consider the standard Max-Clique problem, but we can also consider ``Maximum Maximal Clique". A maximal clique is a subset of completely connected vertices in $G$ such that no additional vertices in $G$ could be added to the subset and still have it be a clique. In other words, there are no ``easy" additions to the clique, it would take more than a single pass checking the vertices and their neighbors to find a better clique. Finding the maximum of all these maximal cliques is typically the same as finding the simple maximum, but when looking for the second best, it does change the solution, and the hardness of the probem. We begin with the version that does not require maximality.
+\subsection{Maximum Clique}
+\begin{definition}[\exob{}-Max-Clique]
+Given an instance of the Maximum Clique problem and an optimal clique $C$, find a clique $C'$ such that $|C'| < |C|$ and no clique $C''$ with $|C'| < |C''| < |C|$ exists.
+\end{definition}
+
+\begin{theorem}
+\exob{}-Max-Clique is in $\pp{}$.
+\end{theorem}
+\begin{proof}
+To find the second-best solution for \exob{}-Max-Clique, we can take the optimal clique $C$ provided as input and remove any vertex from $C$ to create a new clique. This new clique is a valid second-best solution and can be found in polynomial time.
+\end{proof}
+
+\begin{definition}[\inob{}-Max-Clique]
+Given an instance of the Maximum Clique problem and an optimal clique $C$, find a clique $C' \neq C$ such that $|C'| \leq |C|$ and no clique $C'' \neq C$ with $|C'| \leq |C''| < |C|$ exists.
+\end{definition}
+\begin{theorem}
+\inob{}-Max-Clique is $\nph{}$.
+\end{theorem}
+
+\begin{proof}
+    This proof parallels the original proof that showed the $\nph{}$ nature of Maximum Clique. We will reduce from the problem Karp used to introduce the concept of $\nph{}$ness in the first place, the Satisfiability problem, or SAT. First, let us define this problem. 
+    \begin{definition}[Satisfiability (SAT)]
+Given a Boolean formula $\phi$ in conjunctive normal form (CNF), represented as a set of clauses $D = \{c_1, c_2, \ldots, c_m\}$ over a set of variables $X = \{x_1, x_2, \ldots, x_n\}$, where each clause $c_i$ is a disjunction of literals (variables or their negations), determine whether there exists an assignment of truth values to the variables such that the formula $\phi$ evaluates to true. As an example, a boolean formula $\phi$, could be $\phi = (x_1 \vee x_2 \vee \neg x_3) \wedge (x_3) \wedge (\neg x_1 \vee \neg x_2)$. This formula is satisfiable, since we could use the variable assignment
+$\begin{pmatrix}
+    x_1 \\
+    x_2 \\
+    x_3
+\end{pmatrix} =
+\begin{pmatrix}
+    0 \\
+    1 \\
+    1
+\end{pmatrix}.$
+\end{definition}
+We take the input on SAT, $\phi$, and create an input, $G = (V, E)$ for \inob{}-Max-Clique as follows:
+\begin{enumerate}
+    \item For every clause $d \in D$, and every literal $a$ which is either a variable in $X$ or the negation of a variable in $X$, we create a vertex $(d, a)$.
+    \item We create an edge $e$ between two vertices, $(d_1, a_1)$ and $(d_2, a_2)$, if $d_1 \neq d_2$ and $a_1 \neq a_2$.
+    \item We also create a set of $m$ additional vertices $C =\{v_1, ..., v_m\}$ and add an edge between every pair of $v_i \neq v_j$.
+\end{enumerate}
+Each of these steps can easily be implemented in polynomial time.
+
+We show that providing this graph as input to \inob{}-Max-Clique along with optimal clique $C$ must solve our SAT instance. In particular, if \inob{}-Max-Clique is able to find another clique of size $m$, then our SAT instance must be satisfiable. Otherwise, it must not be satisfiable. Every step above is clearly polynomial in the size of the input for the original SAT instance.
+
+First, we must show that $C$ with size $m$ is a maximum clique. Firstly, it is by our definition a clique, as every vertex in $C$ is connected. For optimality, any clique containing a vertex of the form $(d, a)$ cannot include another vertex $(d', a')$ where either $d = d'$ or $a = a'$, as there are no edges between such pairs of vertices. Therefore, any clique containing vertices of the form $(d, a)$ can have at most one vertex per clause, resulting in a clique of size at most $m$. Thus, the optimal clique in $G$ has size exactly $m$.
+
+$(\Rightarrow)$ Suppose the \inob{}-Max-Clique instance has a second-best clique $C'$ with $|C'| = |C|$, where $C$ is the optimal clique. We claim that the SAT instance is satisfiable. Since $C' \neq C$ and there are no edges between the vertices in $C$ and the remainder of $G$, $C'$ must contain exclusively vertices of the form $(d, a)$. For each variable $x_i$, if $C'$ contains a vertex $(d, x_i)$, set $x_i$ to true. Otherwise, if $C'$ contains a vertex $(d, \neg x_i)$, set $x_i$ to false. If $C'$ does not contain any vertex corresponding to $x_i$ or $\neg x_i$, assign $x_i$ arbitrarily. This assignment satisfies the SAT instance because for each clause $d$, at least one of its literals must be true and since $C'$ is a clique of size $m$ and cannot contain vertices with conflicting literals, it contains at most one variable from each clause. Therefore, the clique effectively contains one true literal for each clause, showing that such an assignment must be possible.
+
+$(\Leftarrow)$ Suppose the SAT instance is satisfiable. Let $A$ be a satisfying assignment for $\phi$. We can construct a second-best clique $C'$ for the \inob{}-Max-Clique instance as follows: for each clause $d$, select a literal $a$ that is true under the assignment $A$ and add the corresponding vertex $(d, a)$ to $C'$. By construction, $C'$ is of size $|C'| = m = |C|$, and $C' \neq C$ since it contains exclusively vertices of the form $(d, a)$ instead of $\{v_1, ..., v_m\}$. Let two vertices selected by this algorithm be $x_1 = (d_1, a_1), x_2 = (d_2, a_2)$. Assume towards a contradiction that $x_1$ and $x_2$ are not neighbors in the input graph. That means either $d_1 = d_2$ or $a_1 = \neg a_2$. Since the algorithm iterated over the clauses selecting only one literal from each, $d_1 \neq d_2$. However, since we select only a true literal from each clause, that means both $a_1$ and $a_2$ are true. However, if one is the negation of the other, that would be impossible. Therefore, by contradiction, $x_1$ and $x_2$ must be neighbors and therefore $C'$ is a clique of size $|C|$.
+
+Since SAT is $\nph{}$ and we have shown a polynomial-time reduction from SAT to \inob{}-Max-Clique, we can conclude that \inob{}-Max-Clique is also $\nph{}$.
+
+\end{proof}
+
+\begin{definition}[\exb{}-Max-Clique]
+Given an instance of the Maximum Clique problem, find a clique $C'$ such that $|C'| < |C|$, where $C$ is an optimal clique, and no clique $C''$ with $|C'| < |C''| < |C|$ exists.
+\end{definition}
+\begin{theorem}
+    \exb{}-Max-Clique is $\nph{}$.
+\end{theorem}
+\begin{proof}
+    This proof is nearly the same as the previous proof, except in this case we create an optimal clique of size $m+1$ and don't supply it to the subproblem. This simple conversion is not possible for all problems, and in coming to this proof we did not originally formulate them the same way. For these reasons and to be absolutely rigourous, the proof can be described as follows:
+ We will reduce from the Satisfiability problem, or SAT, as defined earlier.
+
+We take the input on SAT, $\phi$, and create an input, $G = (V, E)$, for \exb{}-Max-Clique. 
+\begin{enumerate}
+    \item For every clause $d \in D$, and every literal $a$ which is either a variable in $X$ or the negation of a variable in $X$, we create a vertex $(d, a)$.
+    \item We create an edge $e$ between two vertices, $(d_1, a_1)$ and $(d_2, a_2)$, if $d_1 \neq d_2$ and $a_1 \neq a_2$. 
+    \item We also create a set of $m+1$ vertices $C =\{v_1, ..., v_{m+1}\}$ and add an edge between every pair of $v_i \neq v_j$. 
+\end{enumerate} 
+All of these steps can be completed in polynomial time.
+We now show that providing this graph as input to \exb{}-Max-Clique must solve our SAT instance. In particular, if \exb{}-Max-Clique is able to find a clique of size $m$, then our SAT instance must be satisfiable. Otherwise, it must not be satisfiable. Importantly, every step in the above process is clearly polynomial in the size of the SAT input.
+
+First, we must show that $C$ with size $m+1$ is a maximum clique. Firstly, it is by our definition a clique, as every vertex in $C$ is connected. For optimality, any clique containing a vertex of the form $(d, a)$ cannot include another vertex $(d', a')$ where either $d = d'$ or $a = a'$, as there are no edges between such pairs of vertices. Therefore, any clique containing vertices of the form $(d, a)$ can have at most one vertex per clause, resulting in a clique of size at most $m$. Thus, the vertices that are instead of the form $\{v_1, ..., v{m+1}\}$ must compose the optimal clique in $G$, as of course they have size exactly $m+1$.
+
+$(\Rightarrow)$ Suppose the \exb{}-Max-Clique instance has a second-best clique $C'$ with $|C'| = m$. We claim that the SAT instance is satisfiable. Since $C' \neq C$ and there are no edges between the vertices in $C$ and the remainder of $G$, $C'$ must contain exclusively vertices of the form $(d, a)$. For each variable $x_i$, if $C'$ contains a vertex $(d, x_i)$, set $x_i$ to true. Otherwise, if $C'$ contains a vertex $(d, \neg x_i)$, set $x_i$ to false. If $C'$ does not contain any vertex corresponding to $x_i$ or $\neg x_i$, assign $x_i$ arbitrarily. This assignment satisfies the SAT instance because for each clause $d$, at least one of its literals must be true and since $C'$ is a clique of size $m$ and cannot contain vertices with conflicting literals, it contains at most one variable from each clause. Therefore, the clique effectively contains one true literal for each clause, showing that such an assignment must be possible
+
+$(\Leftarrow)$ Suppose the SAT instance is satisfiable. Let $A$ be a satisfying assignment for $\phi$. We can construct a second-best clique $C'$ for the \exb{}-Max-Clique instance as follows: for each clause $d$, select a literal $a$ that is true under the assignment $A$ and add the corresponding vertex $(d, a)$ to $C'$. By construction, $C'$ is of size $|C'| = m < |C|$. Let two vertices selected by this algorithm be $x_1 = (d_1, a_1), x_2 = (d_2, a_2)$. Assume towards a contradiction that $x_1$ and $x_2$ are not neighbors in the input graph. That means either $d_1 = d_2$ or $a_1 = \neg a_2$. Since the algorithm iterated over the clauses selecting only one literal from each, $d_1 \neq d_2$. However, since we select only a true literal from each clause, that means both $a_1$ and $a_2$ are true. However, if one is the negation of the other, that would be impossible. Therefore, by contradiction, $x_1$ and $x_2$ must be neighbors and therefore $C'$ is a clique of size $m$.
+
+Since SAT is $\nph{}$ and we have shown a polynomial-time reduction from SAT to \exb{}-Max-Clique, we can conclude that \exb{}-Max-Clique is also $\nph{}$.
+\end{proof}
+
+\subsection{Maximum Maximal Clique}
+\begin{definition}[\exob{}-Max-Maximal-Clique]
+Given an instance of the Maximum Clique problem and an optimal clique $C$, find a maximal clique $C'$ such that $|C'| < |C|$ and no maximal clique $C''$ with $|C'| < |C''| < |C|$ exists.
+\end{definition}
+
+\begin{theorem}
+\exob{}-Max-Maximal-Clique is $\nph{}$.
+\end{theorem}
+\begin{proof}
+We can reduce the original Maximum Clique problem to \exob{}-Max-Maximal-Clique. Given an instance of Maximum Clique, we can create a new input graph $G'$. In $G'$, we let $G$ exist as a subgraph unchanged in $G'$, but we also have another subgraph $C$ with $|V(G)| + 1$ vertices that is maximally connected. In other words, we add a clique that is one vertex larger than $G$ itself that is unconnected to the vertices in $G$. Clearly, this clique is the maximum clique in $G'$. Thus, we can create an instance of \exob{}-Max-Maximal-Clique with the input of $G'$ along with optimal solution $C$. Since any strict subgraph of $C$ in $G'$ would not be maximal (as we could simply add a missing vertex from $C$ back in), the solution to this instance on \exob{}-Max-Maximal-Clique must be the maximum maximal clique in the original $G$, which is exactly defined as the solution to the original problem. Thus, since Maximum Clique is in $\nph{}$, \exob{}-Max-Maximal-Clique is also $\nph{}$.
+\end{proof}
+
+\begin{definition}[\inob{}-Max-Maximal-Clique]
+Given an instance of the Maximum Clique problem and an optimal clique $C$, find a maximal clique $C'$ such that $|C'| \leq |C|$ and no maximal clique $C'' \neq C$ with $|C'| < |C''|$ exists.
+\end{definition}
+
+\begin{theorem}
+\inob{}-Max-Maximal-Clique is $\nph{}$.
+\end{theorem}
+\begin{proof}
+We can reduce the original Maximum Clique problem to \inob{}-Max-Maximal-Clique in the exact same way as \exob{}. It is clear that the clique, $C$, we created in $G'$ for \exob{}-Max-Maximal-Clique is explicitly larger than any other possible maximal clique, making \inob{}-Max-Maximal-Clique produce the exact same result as the exclusive version. Thus, the proof for \inob{}-Max-Maximal-Clique follows directly from the proof for \exob{}-Max-Maximal
+\end{proof}
+
+\begin{definition}[\exb{}-Max-Maximal-Clique]
+Given an instance of the Maximum Clique problem find a maximal clique $C'$ such that $|C'| \leq |C|$ for an optimal clique $C$ and no maximal clique $C'' \neq C$ with $|C'| < |C''|$ exists.
+\end{definition}
+
+\begin{theorem}
+\exb{}-Max-Maximal-Clique is $\nph{}$.
+\end{theorem}
+\begin{proof}
+This follows from \autoref{exbhard} we proved in an earlier section. Since \exob{}-Max-Maximal-Clique is $\nph{}$, \exb{}-Max-Maximal-Clique must also be.
+\end{proof}
+
+\section{Minimum Vertex Cover}
+\begin{definition}[Minimum Vertex Cover]
+Given a graph $G = (V, E)$, find a minimum-size subset $C \subseteq V$ such that for every edge $(u, v) \in E$, either $u \in C$ or $v \in C$.
+\end{definition}
+
+Much like for maximal clique, there is a second version of vertex cover that requires the vertex cover be minimal, where no vertices in $C$ can simply be removed without loss of its covering nature.
+\subsection{Minimum Vertex Cover}
+\begin{definition}[\exob{}-Min-Vertex-Cover]
+Given an instance of the Minimum Vertex Cover problem and an optimal vertex cover $C$, find a vertex cover $C'$ such that $|C'| > |C|$ and no vertex cover $C''$ with $|C| < |C''| < |C'|$ exists.
+\end{definition}
+
+\begin{theorem}
+\exob{}-Min-Vertex-Cover is in $\pp{}$.
+\end{theorem}
+\begin{proof}
+To find the second-best solution for \exob{}-Min-Vertex-Cover, we can take the optimal vertex cover $C$ provided as input and add any vertex not in $C$ to create a new vertex cover. This new vertex cover is a valid second-best solution and can be found in polynomial (constant) time.
+\end{proof}
+
+\begin{definition}[\inob{}-Min-Vertex-Cover]
+Given an instance of the Minimum Vertex Cover problem and an optimal vertex cover $C$, find a vertex cover $C' \neq C$ such that $|C'| \geq |C|$ and no vertex cover $C'' \neq C$ with $|C| \leq |C''| < |C'|$ exists.
+\end{definition}
+
+\begin{theorem}
+\inob{}-Min-Vertex-Cover is $\nph{}$.
+\end{theorem}
+\begin{proof}
+This is a noteworthy proof as it is the first time in this section that we will use a problem we previously defined to prove the hardness of a new problem. We will be reducing from \inob{}-Max-Clique to \inob{}-Min-Vertex-Cover.
+
+Given an instance of \inob{}-Max-Clique with a graph $G = (V, E)$ and an optimal clique $C$, we construct an instance of \inob{}-Min-Vertex-Cover as follows:
+
+Create a new graph $G' = (V', E')$ as follows:
+\begin{enumerate}
+    \item $V' = V$ 
+    \item $E' = \{(u, v) : u, v \in V, u \neq v, (u, v) \notin E\}$. In other words, $E'$ includes every edge that is not in $E$.
+\end{enumerate}
+Clearly neither of these steps requires more than polynomial time on the size of the input graph to complete.
+
+We call $G'$ the ``complement graph" of $G$.
+Set the optimal vertex cover in $G'$ to $C' = V - C$.
+We show that providing this graph $G'$ as input to \inob{}-Min-Vertex-Cover along with the optimal vertex cover $C'$ must solve our \inob{}-Max-Clique instance. In particular, if \inob{}-Min-Vertex-Cover is able to find another vertex cover of size $|V| - |C|$, then our \inob{}-Max-Clique instance must have a second-best clique of size $|C|$. Otherwise, it must not have such a clique. If \inob{}-Max-Clique does not have a second-best clique of size $|C|$, then it becomes equivalent to \exob{}-Max-Clique, which we have already shown to be in $P$. Additionally, note that it is very easy to construct this complement graph in polynomial time in the size of the input.
+
+First, we must show that $C'$ with size $|V| - |C|$ is a minimum vertex cover in $G'$. By the definition of a vertex cover, every edge in $G'$ must have at least one endpoint in $C'$. Since $C$ is a clique in $G$, there are no edges between any pair of vertices in $C$ in $G'$, the complement of $G$. Therefore, $C'$ covers all edges in $G'$, making it a valid vertex cover. To prove $C'$ is optimal, suppose towards a contradiction that there exists a vertex cover $C''$ in $G'$ with $|C''| < |C'|$. Then, consider $V - C''$. Clearly, $|V-C''| > |V-C'| = |C|$, thus if this set is a clique in $G$, then it would be a larger clique than the original $C$. But, we already know $C''$ is a vertex cover in $G'$. To show that $V - C''$ is indeed a clique in $G$, suppose for the sake of contradiction that there exist two vertices $u, v \in V - C''$ such that $(u, v) \notin E$. By the construction of $G'$, this means that $(u, v) \in E'$. However, since $C''$ is a vertex cover in $G'$, at least one of $u$ or $v$ must be in $C''$, contradicting the fact that $u, v \in V - C''$. Therefore, every pair of vertices in $V - C''$ must be connected by an edge in $G$, making $V - C''$ a clique in $G$. would be a clique in $G$ with size greater than $|C|$, contradicting the optimality of $C$ in $G$. Therefore, we have proven by contradiction that there is no $C''$, a vertex cover smaller than $C'$. Thus, $C'$ is a minimum vertex cover in $G'$. Now, we must show that \inob{}-Min-Vertex-Cover finds a vertex cover with size $|C'|$ $\iff$ \inob{}-Max-Clique has a second-best clique of size $|C$. 
+
+$(\Rightarrow)$ Suppose the \inob{}-Min-Vertex-Cover instance has a second-best vertex cover $C''$ with $|C''| = |C'|$, where $C'$ is the optimal vertex cover. We claim that $V - C''$ is a second-best clique in $G$ with size $|C|$. Since $C'' \neq C'$ and $|C''| = |C'|$, $V - C''$ must be different from $C = V - C'$ and $|V - C''| = |V| - |C''| = |V| - |C'| = |C|$. Therefore, $V - C''$ is a clique in $G$ with size $|C|$, making it a second-best clique.
+
+$(\Leftarrow)$ Suppose the \inob{}-Max-Clique instance has a second-best clique $C''$ with $|C''| = |C|$. We claim that $V - C''$ is a second-best vertex cover in $G'$ with size $|C'|$. Since $C'' \neq C$ and $|C''| = |C|$, $V - C''$ must be different from $C'$ and $|V - C''| = |V| - |C''| = |V| - |C| = |C'|$. Since $C''$ is a clique in $G$, there are no edges between any pair of vertices in $C''$ in $G'$. Therefore, $V - C''$ covers all edges in $G'$, making it a second-best vertex cover.
+
+Since \inob{}-Max-Clique is $\nph{}$ and we have shown a polynomial-time reduction from \inob{}-Max-Clique to \inob{}-Min-Vertex-Cover, we have shown that \inob{}-Min-Vertex-Cover is also $\nph{}$.
+\end{proof}
+
+
+\begin{definition}[\exb{}-Min-Vertex-Cover]
+Given an instance of the Minimum Vertex Cover problem, find a vertex cover $C'$ such that $|C'| > |C|$, where $C$ is an optimal vertex cover, and no vertex cover $C''$ with $|C| < |C''| < |C'|$ exists.
+\end{definition}
+
+
+\begin{theorem}
+\exb{}-Min-Vertex-Cover is $\nph{}$.
+\end{theorem}
+\begin{proof}
+To prove that \exb{}-Min-Vertex-Cover is NP-hard, we will reduce from \exb{}-Max-Clique.
+
+Given an instance of \exb{}-Max-Clique with a graph $G = (V, E)$, we construct an instance of \exb{}-Min-Vertex-Cover as follows:
+reate the complement graph $G' = (V', E')$ of $G$,
+\begin{enumerate}
+    \item C $V' = V$ 
+    \item $E' = {(u, v) : u, v \in V, u \neq v, (u, v) \notin E}$.
+\end{enumerate}
+
+We claim that the second-best clique in $G$ must be exactly $V - C$, where $C$ is the result of \exb{}-Min-Vertex-Cover on our constructed input.
+
+Note that all of the logic from the \inob{}-Min-Vertex-Cover proof carries over here, allowing us to say that the second-best solution of the vertex cover problem is the complement of the second best solution of the clique problem. Thus, we will spare the repetitive details here.
+
+\end{proof}
+\subsection{Minimum Minimal Vertex Cover}
+As mentioned above, we have a second formulation for the minimum vertex cover, where we require the solutions to the second-best problems to be minimal.
+\begin{definition}[\exob{}-Min-Minimal-Vertex-Cover]
+Given an instance of the Minimum Vertex Cover problem and an optimal vertex cover $C$, find a minimal vertex cover $C'$ such that $|C'| > |C|$ and no minimal vertex cover $C''$ with $|C| < |C''| < |C'|$ exists.
+\end{definition}
+
+\begin{theorem}
+\exob{}-Min-Minimal-Vertex-Cover is $\nph{}$.
+\end{theorem}
+\begin{proof}
+Given an instance of \exob{}-Max-Maximal-Clique with a graph $G = (V, E)$ and an optimal maximal clique $X$, we construct an instance of \exob{}-Min-Minimal-Vertex-Cover as follows:
+
+\begin{enumerate}
+    \item  Create the complement graph $G' = (V', E')$ of $G$, where $V' = V$ and $E' = {(u, v) : u, v \in V, u \neq v, (u, v) \notin E}$.
+    \item Set the optimal minimal vertex cover in $G'$ to $C = V - X$.
+\end{enumerate}
+Of course, both of these procedures can easily be implemented in polynomial time on the size of the input graph. 
+
+Let us first prove a lemma.
+\begin{lemma*}
+    $X$ is a maximal clique in $G$ $\iff$ $C = V - X$ is a minimal vertex cover in G'.
+\end{lemma*}
+\begin{proof}
+Let $G = (V, E)$ be an undirected graph, and let $X \subseteq V$ be a maximal clique in $G$. We claim that $C = V - X$ is a minimal vertex cover in $G$.
+
+First, we have already proven above that $C$ is at least a vertex cover, so we need only prove that it is minimal. 
+
+ Let $w$ be an arbitrary vertex in $C$. We need to show that $C - {w}$ is not a vertex cover. Since $X$ is a maximal clique, there must be a vertex $z$ in $X$ such that $(w, z)$ is not an edge in $G$ (otherwise, $X \cup {w}$ would be a larger clique, contradicting the maximality of $X$). Consider the edge $(w, z)$. Since $w \in C$ and $z \in X$, neither $w$ nor $z$ is in $C - {w}$. Therefore, $C - {w}$ does not cover the edge $(w, z)$ and is not a vertex cover. Since $w$ was arbitrary, this implies that removing any vertex from $C$ results in a set that is not a vertex cover, and thus $C$ is minimal.
+
+We have shown that $C = V - X$ is a vertex cover and that it is minimal. Therefore, the complement of a maximal clique in its complement graph is a minimal vertex cover.
+\end{proof}
+Now, we will show that a set $X'$ is a solution to \exob{}-Max-Maximal-Clique in $G$ if and only if $S = V - X'$ is a solution to \exob{}-Min-Minimal-Vertex-Cover in $G'$.
+
+$(\Rightarrow)$ Suppose $X'$ is a solution to \exob{}-Max-Maximal-Clique in $G$. Then, $X'$ is a maximal clique in $G$ with $|X'| < |X|$, and no maximal clique $X''$ exists in $G$ with $|X'| < |X''| < |X|$. We claim that $S = V - X'$ is a solution to \exob{}-Min-Minimal-Vertex-Cover in $G'$. First, since $X'$ is a maximal clique in $G$, $S$ is a minimal vertex cover in $G'$. Moreover, $|S| = |V| - |X'| > |V| - |X| = |C|$, so $S$ is a minimal vertex cover larger than the optimal one. Finally, suppose there exists a minimal vertex cover $C'$ in $G'$ with $|C| < |C'| < |S|$. Then, $X'' = V - C'$ would be a maximal clique in $G$ with $|X'| < |X''| < |X|$, contradicting the assumption that $X'$ is a solution to \exob{}-Max-Maximal-Clique.
+
+$(\Leftarrow)$ Suppose $S$ is a solution to \exob{}-Min-Minimal-Vertex-Cover in $G'$. Then, $S$ is a minimal vertex cover in $G'$ with $|S| > |C|$, and no minimal vertex cover $C'$ exists in $G'$ with $|C| < |C'| < |S|$. We claim that $X' = V - S$ is a solution to \exob{}-Max-Maximal-Clique in $G$. First, since $S$ is a minimal vertex cover in $G'$, $X'$ is a maximal clique in $G$. Moreover, $|X'| = |V| - |S| < |V| - |C| = |X|$, so $X'$ is a maximal clique smaller than the optimal one. Finally, suppose there exists a maximal clique $X''$ in $G$ with $|X'| < |X''| < |X|$. Then, $C' = V - X''$ would be a minimal vertex cover in $G'$ with $|C| < |C'| < |S|$, contradicting the assumption that $S$ is a solution to \exob{}-Min-Minimal-Vertex-Cover.
+
+Therefore, we have shown that obtaining a solution to \exob{}-Min-Minimal-Vertex-Cover in $G'$ is equivalent to obtaining a solution to \exob{}-Max-Maximal-Clique in $G$. Since \exob{}-Max-Maximal-Clique is NP-hard (as shown earlier), \exob{}-Min-Minimal-Vertex-Cover must also be NP-hard.
+\end{proof}
+\begin{definition}[\inob{}-Min-Minimal-Vertex-Cover]
+Given an instance of the Minimum Vertex Cover problem and an optimal minimal vertex cover $C$, find a minimal vertex cover $C' \neq C$ such that $|C'| \geq |C|$ and no minimal vertex cover $C'' \neq C$ with $|C| \leq |C''| < |C'|$ exists.
+\end{definition}
+
+\begin{theorem}
+\inob{}-Min-Minimal-Vertex-Cover is NP-hard.
+\end{theorem}
+
+\begin{proof}
+Once again, the reduction here from \inob{}-Max-Maximal-Clique is essentially exactly the same as it was for the \exob{} version. One should simply apply the same technique using the different problem.
+\end{proof}
+
+\begin{definition}[\exb{}-Min-Minimal-Vertex-Cover]
+Given an instance of the Minimum Vertex Cover problem, find a minimal vertex cover $C'$ such that $|C'| > |C|$, where $C$ is an optimal minimal vertex cover, and no minimal vertex cover $C''$ with $|C| < |C''| < |C'|$ exists.
+\end{definition}
+
+\begin{theorem}
+\exb{}-Min-Minimal-Vertex-Cover is NP-hard.
+\end{theorem}
+
+\begin{proof}
+Once again, this follows immediately from \autoref{exbhard} along with the existing proof that \exob{}-Min-Minimal-Vertex-Cover is $\nph{}$ 
+\end{proof}
+
+\section{Minimum Set Cover}
+\begin{definition}[Minimum Set Cover]
+Given a universe $U$ and a collection of sets $\mathcal{S} = {S_1, S_2, \dots, S_m}$ such that $\bigcup_{i=1}^{m} S_i = U$, find a minimum-size subset $\mathcal{C} \subseteq \mathcal{S}$ such that $\bigcup_{S \in \mathcal{C}} S = U$.
+\end{definition}
+
+\begin{definition}[\exob{}-Set-Cover]
+Given an instance of the Set Cover problem and an optimal cover $\mathcal{C}$, find a cover $\mathcal{C}'$ such that $|\mathcal{C}'| > |\mathcal{C}|$ and no cover $\mathcal{C}''$ with $|\mathcal{C}| < |\mathcal{C}''| < |\mathcal{C}'|$ exists.
+\end{definition}
+
+\begin{theorem}
+\exob{}-Set-Cover is in $\pp{}$.
+\end{theorem}
+\begin{proof}
+To find the second-best solution for \exob{}-Set-Cover, we can take the optimal set cover $\mathcal{C}$ provided as input and add any unused set to $\mathcal{C}$. This new set cover is a valid second-best solution and can be found in polynomial time.
+\end{proof}
+
+\begin{definition}[\inob{}-Set-Cover]
+Given an instance of the Set Cover problem and an optimal cover $\mathcal{C}$, find a cover $\mathcal{C}' \neq \mathcal{C}$ such that $|\mathcal{C}'| \geq |\mathcal{C}|$ and no cover $\mathcal{C}'' \neq \mathcal{C}$ with $|\mathcal{C}| \leq |\mathcal{C}''| < |\mathcal{C}'|$ exists.
+\end{definition}
+\begin{theorem}
+\inob{}-Set-Cover is NP-hard.
+\end{theorem}
+\begin{proof}
+We will reduce from \inob{}-Minimum-Vertex-Cover. Given an instance of \inob{}-Minimum-Vertex-Cover with a graph $G=(V,E)$ and an optimal vertex cover $C$, we construct an instance of \inob{}-Minimum-Set-Cover as follows:
+\begin{enumerate}
+    \item Create a universe $U = E$, that is, each element in the universe corresponds to an edge in $G$.
+    \item For each vertex $v \in V$, create a set $S_v = \{e \in E : v \text{ is an endpoint of } e\}$. In other words, each set $S_v$ corresponds to a vertex in $G$ and contains the edges incident to that vertex.
+    \item Let $\mathcal{S} = \{S_v : v \in V\}$ be the collection of sets.
+    \item Let $\mathcal{P} = \{S_v : v \in C\}$ be the optimal set cover corresponding to the optimal vertex cover $C$.
+\end{enumerate}
+
+All of the above steps can clearly be implemented in polynomial time using standard constructions.    
+
+We claim that a set $C'$ is a solution to \inob{}-Minimum-Vertex-Cover in $G$ if and only if $\mathcal{P}' = \{S_v : v \in C'\}$ is a solution to \inob{}-Minimum-Set-Cover in the constructed instance.
+
+$(\Rightarrow)$ Suppose $C'$ is a solution to \inob{}-Minimum-Vertex-Cover in $G$. Then, $C'$ is a vertex cover in $G$ with $|C'| \geq |C|$, and no vertex cover $C'' \neq C$ exists in $G$ with $|C| \leq |C''| < |C'|$. We claim that $\mathcal{P}' = \{S_v : v \in C'\}$ is a solution to \inob{}-Minimum-Set-Cover in the constructed instance. First, since $C'$ is a vertex cover in $G$, every edge in $E$ is incident to at least one vertex in $C'$, so $\mathcal{P}'$ is a set cover for $U$. Moreover, $|\mathcal{P}'| = |C'| \geq |C| = |\mathcal{P}|$, so $\mathcal{P}'$ is a set cover larger than or equal to the optimal one. Finally, suppose there exists a set cover $\mathcal{P}'' \neq \mathcal{P}$ with $|\mathcal{P}| \leq |\mathcal{P}''| < |\mathcal{P}'|$. Then, $C'' = \{v : S_v \in \mathcal{P}''\}$ would be a vertex cover in $G$ with $|C| \leq |C''| < |C'|$, contradicting the assumption that $C'$ is a solution to \inob{}-Minimum-Vertex-Cover.
+
+$(\Leftarrow)$ Suppose $\mathcal{P}'$ is a solution to \inob{}-Minimum-Set-Cover in the constructed instance. Then, $\mathcal{P}'$ is a set cover with $|\mathcal{P}'| \geq |\mathcal{P}|$, and no set cover $\mathcal{P}'' \neq \mathcal{P}$ exists with $|\mathcal{P}| \leq |\mathcal{P}''| < |\mathcal{P}'|$. We claim that $C' = {v : S_v \in \mathcal{P}'}$ is a solution to \inob{}-Minimum-Vertex-Cover in $G$. First, since $\mathcal{P}'$ is a set cover, every edge in $E$ is covered by at least one set in $\mathcal{P}'$, so every edge in $G$ is incident to at least one vertex in $C'$, making $C'$ a vertex cover. Moreover, $|C'| = |\mathcal{P}'| \geq |\mathcal{P}| = |C|$, so $C'$ is a vertex cover larger than or equal to the optimal one. Finally, suppose there exists a vertex cover $C'' \neq C$ with $|C| \leq |C''| < |C'|$. Then, $\mathcal{P}'' = \{S_v : v \in C''\}$ would be a set cover with $|\mathcal{P}| \leq |\mathcal{P}''| < |\mathcal{P}'|$, contradicting the assumption that $\mathcal{P}'$ is a solution to \inob{}-Minimum-Set-Cover.
+
+Therefore, if we could solve \inob{}-Minimum-Set-Cover in polynomial time, we could also solve \inob{}-Minimum-Vertex-Cover in polynomial time by constructing the instance as described above and converting the solution back to a vertex cover. Since \inob{}-Minimum-Vertex-Cover is NP-hard, \inob{}-Minimum-Set-Cover must also be NP-hard.
+\end{proof}
+\begin{definition}[\exb{}-Minimum-Set-Cover]
+Given an instance of the Minimum Set Cover problem, find a cover $\mathcal{C}'$ such that $|\mathcal{C}'| > |\mathcal{C}|$, where $\mathcal{C}$ is an optimal cover, and no cover $\mathcal{C}''$ with $|\mathcal{C}| < |\mathcal{C}''| < |\mathcal{C}'|$ exists.
+\end{definition}
+
+\begin{theorem}
+    \exb{}-Minimum-Set-Cover is $\nph{}$.
+\end{theorem}
+\begin{proof}
+    We can follow exactly the same formulation as the above \inob{} proof, but with a reduction from \exb{}-Vertex-Cover instead.
+\end{proof}
+
+\section{Minimum Dominating Set}
+\begin{definition}[Dominating Set]
+Given a graph $G = (V, E)$, find a minimum-size subset $D \subseteq V$ such that for every vertex $v \in V - D$, there exists a vertex $u \in D$ such that $(u, v) \in E$. In other words, find the smallest subset of the vertices such that every vertex in $G$ is either in the subset or has a neighbor in the subset.
+\end{definition}
+
+\begin{definition}[\exob{}-Dominating-Set]
+Given an instance of the Dominating Set problem and an optimal dominating set $D$, find a dominating set $D'$ such that $|D'| > |D|$ and no dominating set $D''$ with $|D| < |D''| < |D'|$ exists.
+\end{definition}
+
+\begin{theorem}
+\exob{}-Dominating-Set is in $\pp{}$.
+\end{theorem}
+\begin{proof}
+To find the second-best solution for \exob{}-Dominating-Set, we can take the optimal dominating set $D$ provided as input and add any vertex not in $D$ to create a new dominating set. This new dominating set is a valid second-best solution and can be found in polynomial time.
+\end{proof}
+
+\begin{definition}[\inob{}-Dominating-Set]
+Given an instance of the Dominating Set problem and an optimal dominating set $D$, find a dominating set $D' \neq D$ such that $|D'| \geq |D|$ and no dominating set $D'' \neq D$ with $|D| \leq |D''| < |D'|$ exists.
+\end{definition}
+\begin{theorem}
+\inob{}-Dominating-Set is NP-hard.
+\end{theorem}
+
+\begin{proof}
+We will reduce from \inob{}-Vertex-Cover. Given an instance of \inob{}-Vertex-Cover with a graph $G=(V,E)$ and an optimal vertex cover $C$, we construct an instance of \inob{}-Dominating-Set as follows:
+
+    \begin{enumerate}
+        \item Create a new graph undirected $G'=(V',E')$, where $V' = V \cup E$, i.e., for each edge in $G$, we create a new vertex in $G'$.
+        \item For each new vertex $e=(u,v) \in V'$, add the edges $(e,u)$ and $(e,v)$ to $E'$.
+        \item Let $D = C$ be the optimal dominating set in $G'$ corresponding to the optimal vertex cover $C$ in $G$.
+    \end{enumerate}
+    Note that we henceforth assume there are no vertices in $G$ with no edges connecting them to another vertex. If any such vertices exist, our solution to the vertex cover must by necessity include all of them, so we could just add them back at the end. 
+    
+    Clearly, each of these steps is achievable in polynomial time. We claim that a set $C'$ is a solution to \inob{}-Vertex-Cover in $G$ if and only if $D' = C'$ is a solution to \inob{}-Dominating-Set in $G'$.
+
+    First, let us show that $D$ is an optimal dominating set. 
+    
+    First, let us prove a lemma.
+    \begin{lemma}
+        If $C$ is a valid vertex cover for $G$, then $D = C$ is a valid dominating set for $G'$.
+    \end{lemma}
+    
+    \begin{proof}
+        Suppose towards a contradiction that there is a vertex $v \in V'$ such that $v \not\in D$ and $u \not \in D$ for all $u$, neighbors of $v$ in $E'$. Either $v$ is a vertex from $E$ or a vertex from $V$. If $v$ is from $E$ originally, then $v = (x,y)$ for $x,y \in V$. Since $(x,y) \in E$, at least one of $x,y$ must be in $C=D$ by the definition of a vertex cover. Since $v$ must be connected to both $x$ and $y$ from step two, we would have a contradiction as $v$ has a neighbor in $D$. So, $v$ must be a vertex originally from $V$. However, in that case, there must be an edge $(u,v) \in E$, so at least one of $u$ and $v$ must be in $C=D$. This would also be a contradiction of our initial assumption. Thus, $D$ is a dominating set.
+    \end{proof}
+
+    For optimality, suppose there is a dominating set $D'$ in $G'$ such that $|D'| <|D|$. Then every vertex in $D'$ is either originally from $E$ or originally from $V$. Let $v \in D$, if we suppose $v = (x,y) \in E$, we could replace $v$ with $x$ or $y$ in $D'$ without loss of its dominating nature since the only vertexes $v$ neighbors are $x$ and $y$, and they are themselves neighbors. Thus, perform this action on $D'$ until every vertex in $D'$ is originally from $V$. We will further refer to this process as the "replacement process". We will prove a lemma here to finish our optimality proof that will be useful for later parts of the proof.
+    \begin{lemma}
+        If $D'$ is a dominating set in $G'$ that has been modified by the replacement process described above, then $D'$ is also a vertex cover of $G$.
+    \end{lemma}
+    \begin{proof}
+        Suppose towards a contradiction that there is an edge $e = (u,v)$ in $E$ such that neither $u$ nor $v$ is in $D'$. Since $e\in E$, we know $e \in V'$. We also know that $e \in V'$ has exactly two neighbors, $u$ and $v$. Finally, we know since $D'$ is a dominating set that at least one of $u$, $v$, or $e$ must be in $D'$. By our process performed on $D'$, we know $e$ itself must not be in $D'$ and that one of its neighbors $u$ or $v$ must be. This is a contradiction and thus $D'$ must be a vertex cover of $G$. 
+    \end{proof}
+    Thus, $D'$ is a vertex cover of $G$. However, we assumed that $|D'| < |D| = |C|$. Thus, $D'$ would be a vertex cover smaller than $C$, which is impossible as $C$ is the optimal vertex cover.
+
+    Next, we show that $D'$ is a solution to \inob{}-Dominating-Set $\iff$ $C'$ is also a solution to \inob{}-Vertex-Cover, where $C'$ is $D'$ after replacing each vertex in $D'$ that originally come from $E$ with one of its neighbors. We call the process described as the "replacement process", and will henceforth simply refer to it as such.
+    $(\Rightarrow)$ Suppose $C'$ is a solution to \inob{}-Vertex-Cover in $G$. Then, $C'$ is a vertex cover in $G$ with $|C'| \geq |C|$, and no vertex cover $C'' \neq C$ exists in $G$ with $|C| \leq |C''| < |C'|$. We claim that $D' = C'$ is a solution to \inob{}-Dominating-Set in $G'$. First, since $C'$ is a vertex cover in $G$, every edge in $E$ is incident to at least one vertex in $C'$, so every vertex in $E \subseteq V'$ is dominated by at least one vertex in $C' = D'$. Moreover, every vertex in $V \subseteq V'$ is either in $C' = D'$ or is incident to an edge in $E$, which is in turn incident to a vertex in $C' = D'$, so every vertex in $V$ is also dominated by $D'$. Thus, $D'$ is a dominating set in $G'$. Furthermore, $|D'| = |C'| \geq |C| = |D|$, so $D'$ is a dominating set larger than or equal to the optimal one. Finally, suppose there exists a dominating set $D'' \neq D$ in $G'$ with $|D| \leq |D''| < |D'|$. First, run the replacement process on $D''$. Then, $C'' = D''$ would be a vertex cover in $G$ with $|C| \leq |C''| < |C'|$ by our first lemma, contradicting the assumption that $C'$ is a solution to \inob{}-Vertex-Cover.
+
+$(\Leftarrow)$ Suppose $D'$ is a solution to \inob{}-Dominating-Set in $G'$. That is, $D'$ is a dominating set in $G'$ with $|D'| \geq |D|$, and no dominating set $D'' \neq D$ exists in $G'$ with $|D| \leq |D''| < |D'|$. First, perform the replacement process on $D'$. We claim that $C' = D'$ is a solution to \inob{}-Vertex-Cover in $G$. First, we know from our first lemma that $C'$ is a valid vertex cover of $G$.  Additionally, suppose there exists a vertex cover $C'' \neq C$ in $G$ with $|C| \leq |C''| < |C'|$. Then, by our second lemma $D'' = C''$ would be a dominating set in $G'$ with $|D| \leq |D''| < |D'|$, contradicting the assumption that $D'$ is a solution to \inob{}-Dominating-Set.
+
+Therefore, if we could solve \inob{}-Dominating-Set in polynomial time, we could also solve \inob{}-Vertex-Cover in polynomial time by constructing the instance as described above and converting the solution back to a vertex cover. Since \inob{}-Vertex-Cover is NP-hard, \inob{}-Dominating-Set must also be NP-hard.
+\end{proof}
+\begin{definition}[\exb{}-Dominating-Set]
+Given an instance of the Dominating Set problem, find a dominating set $D'$ such that $|D'| > |D|$, where $D$ is an optimal dominating set, and no dominating set $D''$ with $|D| < |D''| < |D'|$ exists.
+\end{definition}
+
+
+\begin{theorem}
+\exb{}-Dominating-Set is $\nph{}$.
+\end{theorem}
+\begin{proof}
+We could again reduce from \exb{}-Vertex-Cover in the same manner as we did for \inob{}-Dominating-Set. The proof would function in exactly the same manner, so we won't repeat it here.
+\end{proof}
+
+
+\section{Maximum Independent Set}
+\begin{definition}[Maximum Independent Set]
+Given a graph $G = (V, E)$, find a maximum-size subset
+$I \subseteq V$ such that for every pair of vertices $u, v \in I$, $(u, v) \notin E$.
+\end{definition}
+It is important to note that the Independent Set problem is fundamentally very similar to both Clique and Vertex Cover. In particular, if we have a maximum clique $C$ in $G = (V,E)$, then the maximum independent set in the complement of $G$, $G'$ would be $C$. Similarly, if we have a minimum vertex cover $C$ in $G= (V,E)$, then we also have a maximum independent set in $G$ with $V-C$. Both of these results are widely accepted, and carry over to all second-best versions just like we were able to reduce from the various forms of Maximum Clique to the various forms of Minimum Vertex Cover. For that reason, we will avoid being too repetitive, as the proof would take a very similar form to previous ones in this section.
+\begin{definition}[\exob{}-Max-Ind-Set]
+Given an instance of the Maximum Independent Set problem and an optimal independent set $I$, find an independent set $I'$ such that $|I'| < |I|$ and no independent set $I''$ with $|I'| < |I''| < |I|$ exists.
+\end{definition}
+
+\begin{theorem}
+\exob{}-Max-Ind-Set is in $\pp{}$.
+\end{theorem}
+\begin{proof}
+To find the second-best solution for \exob{}-Max-Ind-Set, we can take the optimal independent set $I$ provided as input and remove any vertex from $I$ to create a new independent set. This new independent set is a valid second-best solution and can be found in polynomial time.
+\end{proof}
+
+\begin{definition}[\inob{}-Max-Ind-Set]
+Given an instance of the Maximum Independent Set problem and an optimal independent set $I$, find an independent set $I' \neq I$ such that $|I'| \leq |I|$ and no independent set $I'' \neq I$ with $|I'| \leq |I''| < |I|$ exists.
+\end{definition}
+
+\begin{definition}[\exb{}-Max-Ind-Set]
+Given an instance of the Maximum Independent Set problem, find an independent set $I'$ such that $|I'| < |I|$, where $I$ is an optimal independent set, and no independent set $I''$ with $|I'| < |I''| < |I|$ exists.
+\end{definition}
+
+
+\begin{theorem}
+\inob{}-Max-Ind-Set and \exb{}-Max-Ind-Set are $\nph{}$.
+\end{theorem}
+\begin{proof}
+Both of these statements follow directly from the fact that \inob{}-Maximum-Clique and \exb{}-Minimum-Clique are $\nph{}$.
+\end{proof}
+
+\begin{definition}[\exob{}-Max-Maximal-Ind-Set]
+Given an instance of the Maximum Independent Set problem and an optimal independent set $I$, find a maximal independent set $I'$ such that $|I'| < |I|$ and no maximal independent set $I''$ with $|I'| < |I''| < |I|$ exists.
+\end{definition}
+\begin{definition}[\inob{}-Max-Maximal-Ind-Set]
+Given an instance of the Maximum Independent Set problem and an optimal independent set $I$, find a maximal independent set $I' \neq I$ such that $|I'| \leq |I|$ and no independent set $I'' \neq I$ with $|I'| \leq |I''| < |I|$ exists.
+\end{definition}
+
+\begin{definition}[\exb{}-Max-Maximal-Ind-Set]
+Given an instance of the Maximum Independent Set problem, find a maximal independent set $I'$ such that $|I'| < |I|$, where $I$ is an optimal independent set, and no independent set $I''$ with $|I'| < |I''| < |I|$ exists.
+\end{definition}
+\begin{theorem}
+\exob{}-Max-Maximal-Ind-Set is $\nph{}$.
+\end{theorem}
+\begin{proof}
+The above theorem follows directly from the $\nph{}$ness of all forms of second-best Maximum Maximal Clique and Minimum Minimal Vertex Cover.
+\end{proof}
+
+
+% \section{Other Results}
+% \subsection{Maximum Satisfiability}
+% \hfill\\
+% In our results section, we prove that \exobt{}{-Max-Sat} is easy, whereas \inobt{}{-Max-Sat}, \exb{}{-Max-Sat}, and \inb{{-Max-Sat}} are all NP-hard. The original problem is APX-Hard, or in other words, there is no PTAS, however there are constant approximations.
+% \subsection{Bin Packing}
+% \hfill\\
+% For Bin Packing, there are two optimization forms to consider. The standard definition of the optimization form of the Bin Packing problem takes as input a bin capacity $B$ and a set of items $I$ with a heuristic function $C$ that acts on elements of $I$, and the form of the solution would be the number, $K$, of bins sized $B$ that would be needed to fit all items in $I$. However, we can also consider a version of the problem in which the solution must be a partition $P = {I_1, ..., I_K}$ of $I$ such that $\bigcup\limits_{I_j \in P} I_j = I$ and the sum of all $C(i)$ for $i \in I_j$ is less than $B$ for every $I_j \in P$. In other words, we could output a specific bin packing solution, rather than the number of bins required.
+% \subsubsection{Output is Integer $K$}
+% \hfill\\
+% In our results section, we prove that \exob{}{-Bin-Packing-K} is easy and \exb{}{-Bin-Packing-K} is NP-hard. In this case, \inob{}{-Bin-Packing-K} and \inb{}{-Bin-Packing-K} are not clearly defined. The original problem is APX-Hard.
+% \subsubsection{Output is Partition $P$}
+% In our results section, we prove that \exob{}{-Bin-Packing-P} is easy while \inob{}{-Bin-Packing-P}, \exb{}{-Bin-Packing-P}, and \inb{}{-Bin-Packing-P} is (Turing) NP-hard. The original problem is APX-Hard
+% \subsection{Set Cover}
+% \hfill\\
+% In our results section, we prove that \exob{}{-Set-Cover} is easy, whereas \inob{}{-Set-Cover}, \exb{}{-Set-Cover}, and \inb{{-Set-Cover}} are all NP-hard. The original problem is Log-APX, the best known approximation ratio is logarithmic in input size.
+% \subsection{Dominating Set}
+% \hfill\\
+% In our results section, we prove that \exob{}{-Dominating-Set} is easy, whereas \inob{}{-Dominating-Set}, \exb{}{-Dominating-Set}, and \inb{{-Dominating-Set}} are all (Turing) NP-hard. The original problem is Log-APX, the best known approximation ratio is logarithmic in input size.
+% \subsection{Dominating Set}
+% \hfill\\
+% In our results section, we prove that \exob{}{-Dominating-Set} is easy, whereas \inob{}{-Dominating-Set}, \exb{}{-Dominating-Set}, and \inb{{-Dominating-Set}} are all (Turing) NP-hard. The original problem is Log-APX, the best known approximation ratio is logarithmic in input size.
+% \subsection{Maximum Clique}
+% \hfill\\
+% In our results section, we prove that \exob{}{-Max-Clique} is easy, whereas \inob{}{-Max-Clique}, \exb{}{-Max-Clique}, and \inb{{-Max-Clique}} are all (Turing) NP-hard. \exob{}{-Max-Maximal-Clique}, where we limit possible solutions to be maximal cliques (where no vertices exist that are also a part of the fully connected subgraph, but are not necessarily the maximum possible clique) is also NP-Hard. We also produce a specific upper bound for the complexity of \inob{}{-Max-Clique} of $O(n^b)$ where $b$ is the size of the real optimal clique. The original problem is Poly-APX, the best known approximation ratio is polynomial in input size.
+% \subsection{Maximum Independent Set}
+% \hfill\\
+% In our results section, we prove that \exob{}{-Max-Ind-Set} is easy, whereas \inob{}{-Max-Ind-Set}, \exb{}{-Max-Ind-Set}, and \inb{{-Max-Ind-Set}} are all (Turing) NP-hard. \exob{}{-Max-Maximal-Ind-Set}, where we limit possible solutions to be maximal independent sets (where adding any vertex to the set will make it no longer independent, but the set is not necessarily the maximum possible independent set) is also NP-Hard. The original problem is Poly-APX, the best known approximation ratio is polynomial in input size.
+% \subsection{Minimum Vertex Cover}
+% \hfill\\
+% Unsurprisingly, due to its reductions back and forth with the previous two problems, we prove that \exob{}{-Min-Vertex-Cover} is easy, whereas \inob{}{-Min-Vertex-Cover}, \exb{}{-Min-Vertex-Cover}, and \inb{{-Min-Vertex-Cover}} are all (Turing) NP-hard. \exob{}{-Min-Minimal-Vertex-Cover}, where we limit possible solutions to be minimal vertex covers(where removing any vertex from the cover will cause it to no longer cover the graph, but the set is not necessarily the minimum possible vertex cover) is also NP-Hard. The original problem is Poly-APX, the best known approximation ratio is polynomial in input size.
+\section{General Approaches}
+One of the primary reasons we went step-by-step in so many of the proofs above was to develop a more general approach to tackling these second-best problems. While any complete generalization like ``All $\nph{}$ combinitorial optimization problems are also \inob{}-Hard" is impossible to make, as there is most certainly some arbitrary, unrealistic, problem one could come up with that is $\nph{}$ but has very easy second-best solutions, we have been able to generate a few useful general techniques. Much like Lawler's procedure \cite{lawler1972procedure} or Eppstein's generalized techniques \cite{eppstein2014k}, we decided to detail a framework that can be applied to specific future problems rather than attempting to prove likely impossible generalizations about entire classes of computable problems. No one can rigorously prove any of the following statements as they don't apply to every problem anyone could come up with, but in the majority of realistic cases they are true. This is in addition to any theorems proven throughout the thesis, for instance \autoref{exbhard}.
+
+\begin{itemize}
+    \item \textit{If the output of a combinitorial optimization problem is an integer (or is a member of a countable set), the solution to the \exob{} version of the problem is most likely computable in constant time by simply adding/subtracting one (the smallest step between two elements of the set).}
+    \item \textit{The \inob{} problem is almost always more computationally difficult than the \exob{} version, as it can always be reduced to the question of the uniqueness of the optimality of the original solution along with exactly \exob{} itself. The only cases in which this is not true are those in which the optimal solution always gives an obvious co-optimal solution, such as in a symmetric TSP instance if we do not consider the reversal of a tour to be equal to the original tour.}
+    \item \textit{If there is a known reduction from one combinitorial optimization problem $A$ to another, $B$, it is possible to modify that reduction to also reduce from \inob{}-$A$ to \inob{}-$B$, \exob{}-$A$ to \exob{}-$B$, or \exb{}-$A$ to \exb{}-$B$}.
+    \item \textit{If there is a known reduction from the decision form of a combinitorial problem $D$ to its optimization form $O$, it is likely possible to modify that reduction to also create a reduction from $D$ to \inob{}-$O$, \exob{}-$O$, or \exb{}-$O$, assuming none of the mentioned problems are in P}.
+\end{itemize}
+\section{Constrained TSP}
+A relatively common technique in complexity analysis, particularly to prove that a counter-example to a hypothesis exists, is to develop a rather ``unnatural" problem that might not easily come up in the real world, but in some way goes against a general trend present in other problems that have been examined so far. In this case, we developed the below constrained version of TSP to show that, even when the original optimization problem is $\nph{}$, it is possible for both the \exob{} and \inob{} forms to be easy.
+\begin{definition}
+    Let us create a new version of the travelling salesman problem originally defined in its own chapter above. The input of this new problem will be that of unrestricted and undirected TSP, that is, a graph $G=(V,E)$, except $G$ is constrained in the following ways:
+    \begin{itemize}
+        \item $V$ includes three specific vertices $x,y,z$ such that $d(x,y) = d(y,z) = d(x,z) = \frac{1}{|V|}*\min_{u,v \in V - \{x,y,z\}} $.
+        \item The distance between each of $x,y,z$ and every $u \in V - \{x,y,z\}$ is $d(x,u) = d(y,u)  - \epsilon  = d(z,u)= \geq \max_{u,v \in V - \{x,y,z\}}*|V|$. Here, $\epsilon$ is an incredibly small number in comparison to the other edge weights in the graph and is present to allow us to make statements about the exclusive second-best form. We can say for instance that $\epsilon < \frac{1}{|V|^2*100}*\min_{u,v \in V - \{x,y,z\}}$.
+    \end{itemize}
+    In other words, we require three vertices in the graph that are very close to each other but very far from every other vertex. 
+\end{definition}
+Let us first show the following theorem:
+\begin{theorem}
+    Constrained TSP, as described above, is $\nph{}$
+\end{theorem}
+\begin{proof}
+This problem is relatively obviously $\nph{}$. We can easily reduce from Unrestricted-Undirected-TSP by the following outline:
+    On an instance of Unrestricted-Undirected-TSP with input graph $G = (V,E)$, we create a $G'$ by adding five vertices to $V'$. First, we add $x,y,z$ such that they meet the first constraint, and set their distance from all vertices in $V$ to be $\max_{u,v \in V - \{x,y,z\}}*|V|^2*2$, much larger than necessary for the constraint. Then, pick an arbitrary vertex $u \in V$. We create two extra vertices $a,b$, connect it $a$ to $u$ with edge weight $0$, and connect $a$ to $x$ and $b$ to $z$ with edge weights $\max_{u,v \in V - \{x,y,z\}}*|V|$. Finally, we connect $b$ to all other $v \in V$ with the edge weight $d(b,v) = d(u,v)$. Clearly, this new graph meets the constraints outlined above. Additionally, the solution to the traveling salesman problem on this graph will clearly always just be the solution to the original TSP instance with a brief detour from $u$ to $a$ to $x$ to $y$ to $z$ and finally back through $b$ before continuing on like normal. We will omit the specific details of this proof, but it should be fairly intuitive.
+\end{proof}
+\begin{theorem}
+    \exob{}-Constrained-TSP and \inob{}-Constrained-TSP are both in P.
+\end{theorem}
+\begin{proof}
+    This is not difficult to see from the construction of the graph. Since vertex $y$ is just barely further from the other vertices in $V$, the optimal solution will always enter the $x,y,z$ trio through $x$ or $z$ and traverse in $x,y,z$ or $z,y,x$ order. Let us say without loss of generality that the optimal tour $T$ chooses to go from vertex $u$ to $x$ and from $z$ to $v$. Thus, for \inob{}-Constrained-TSP, a second best solution is clearly $T - (u,x,y,z,v) + (u,z,y,x,v)$ with the exact same weight. Meanwhile, the solution to \exob{}-Constrained-TSP would clearly be the just barely worse $T - (u,x,y,z,v) + (u,y,x,z,v)$ or $T - (u,x,y,z,v) + (u,z,x,y,v)$, since there is no other edge change that could have such a small effect. Since it is clear that this process can be done in polynomial time, we have proven \exob{}-Constrained-TSP and \inob{}-Constrained-TSP are both in P.
+\end{proof}
+There are certainly other problems that follow a similar pattern, where we are able to force a handful of solutions that are very similar to the optimal solution to exist. This prevents us from being able to make a statement that, for instance, at least one of the \exob{} or \inob{} versions of a problem must be $\nph{}$. We suspect that a specific problem formulation could even be used to make the \exb{} version of an $\nph{}$ problem easy, but it would have to be a very unnatural formulation, as that problem should always be almost as hard (or often, even harder) as just finding the optimal solution.
+
+
